@@ -149,13 +149,13 @@ module Hiki
       @style         ||= 'default'
       @hilight_keys    = true if @hilight_keys.nil?
       @plugin_debug  ||= false
-      @charset       ||= 'EUC-JP'
+      @charset       ||= 'UTF-8'
       @database_type ||= 'flatfile'
       @cgi_name        = './' if !@cgi_name || @cgi_name.empty?
       @admin_name    ||= 'admin'
       @repos_type    ||= 'default'
       @use_wikiname    = true if @use_wikiname.nil?
-      @use_session      = true if @use_session.nil?
+      @use_session     = true if @use_session.nil?
       @options         = {} unless @options.class == Hash
 
       @xmlrpc_enabled  = true unless defined?(@xmlrpc_enabled)
