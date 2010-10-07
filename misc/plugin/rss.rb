@@ -89,13 +89,12 @@ def rss
 
   require 'time'
   begin
-    if_modified_since = Time.parse(ENV['HTTP_IF_MODIFIED_SINCE'])
+    if_modified_since = Time.parse(@request.env['HTTP_IF_MODIFIED_SINCE'])
   rescue
     if_modified_since = nil
   end
 
   if if_modified_since and last_modified < if_modified_since
-    header['status'] = 'NOT_MODIFIED'
     return ::Hiki::Response.new('', 304, header)
   else
     header['Last-Modified'] = CGI.rfc1123_date(last_modified)
