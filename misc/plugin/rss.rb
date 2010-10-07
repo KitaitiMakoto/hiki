@@ -94,8 +94,8 @@ def rss
     if_modified_since = nil
   end
 
-  if if_modified_since and last_modified < if_modified_since
-    return ::Hiki::Response.new('', 304, header)
+  if if_modified_since and last_modified <= if_modified_since
+    return ::Hiki::Response.new([], 304, header)
   else
     header['Last-Modified'] = CGI.rfc1123_date(last_modified)
     header['type']          = 'text/xml'
