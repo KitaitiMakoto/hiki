@@ -87,7 +87,6 @@ def rss
   body, last_modified = rss_body
   header = {}
 
-  require 'time'
   begin
     if_modified_since = Time.parse(@request.env['HTTP_IF_MODIFIED_SINCE'])
   rescue
@@ -97,7 +96,7 @@ def rss
   if if_modified_since and last_modified <= if_modified_since
     return ::Hiki::Response.new([], 304, header)
   else
-    header['Last-Modified'] = CGI.rfc1123_date(last_modified)
+    header['Last-Modified'] = last_modified.httpdate
     header['type']          = 'text/xml'
     header['charset']       =  @conf.charset
     header['Content-Language'] = @conf.lang
