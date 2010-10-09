@@ -24,6 +24,10 @@ class String
   def to_jis
     NKF.nkf('-m0 -j', self)
   end
+  
+  def to_utf8
+    NKF.nkf('-m0 -w', self)
+  end
 
   def escape
     Hiki::Util.escape(self)
