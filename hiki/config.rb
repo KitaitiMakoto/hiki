@@ -4,7 +4,7 @@
 # TADA Tadashi <sho@spc.gr.jp> holds the copyright of Config class.
 
 module Hiki
-  VERSION = '0.9dev'
+  VERSION = '0.9dev on Rack'
   RELEASE_DATE = '2009-08-24'
 end
 
