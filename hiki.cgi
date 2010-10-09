@@ -2,6 +2,7 @@
 
 begin
 
+require 'rubygems'
 require 'rack'
 require 'hiki/app'
 require 'hiki/attachment'
