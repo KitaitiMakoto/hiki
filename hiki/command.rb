@@ -464,8 +464,7 @@ module Hiki
         @p = @aliaswiki.original_name(p).to_utf8
         if /^\./ =~ @p || @p.size > @conf.max_name_size || @p.size == 0
           @request.params['key'] = nil
-          cmd_create( @conf.msg_invalid_filename( @conf.max_name_size) )
-          return
+          return cmd_create( @conf.msg_invalid_filename( @conf.max_name_size) )
         end
 
         @cmd = 'edit'
