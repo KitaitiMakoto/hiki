@@ -8,7 +8,7 @@
 
 def attach_form(s = '')
   command = @command == 'create' ? 'edit' : @command
-  attach_cgi = @options['attach.cgi_name'] || 'attach.cgi'
+  attach_cgi = @options['attach.cgi_name'] || 'attach'
   <<EOS
 <div class="form">
 <form class="nodisp" method="post" enctype="multipart/form-data" action="#{attach_cgi}">
@@ -185,7 +185,7 @@ def attach_show_page_files
 end
 
 def attach_show_page_files_checkbox
-  attach_cgi = @options['attach.cgi_name'] || 'attach.cgi'
+  attach_cgi = @options['attach.cgi_name'] || 'attach'
   s =  ''
   if (files = attach_page_files).size > 0
      s << %Q!<form method="post" enctype="multipart/form-data" action="#{attach_cgi}">
