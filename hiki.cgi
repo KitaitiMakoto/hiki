@@ -9,6 +9,7 @@ require 'hiki/attachment'
 
 Rack::Handler::CGI.run(
   Rack::URLMap.new(
+    '/attach' => Hiki::Attachment.new('hikiconf.rb'),
     '/' => Hiki::App.new('hikiconf.rb')
 ))
 
