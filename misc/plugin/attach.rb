@@ -128,7 +128,7 @@ def attach_src(file_name, page = @page)
       line = 0
       content.collect! {|i| sprintf("%3d| %s", line+=1, i)}
     end
-    s << h(content.join).gsub(/^\t+/) {|t| tabstop * t.size}.to_euc
+    s << h(content.join).gsub(/^\t+/) {|t| tabstop * t.size}.to_utf8
     s << %Q!</pre>!
   end
 end
@@ -172,6 +172,8 @@ def attach_show_page_files
     files.each do |file_name|
       f = unescape(file_name)
       case @conf.charset
+      when 'UTF-8'
+        f = unescape(file_name).to_utf8
       when 'EUC-JP'
         f = unescape(file_name).to_euc
       when 'Shift_JIS'
@@ -196,6 +198,8 @@ def attach_show_page_files_checkbox
     files.each do |file_name|
       f = unescape(file_name)
       case @conf.charset
+      when 'UTF-8'
+        f = unescape(file_name).to_utf8
       when 'EUC-JP'
         f = unescape(file_name).to_euc
       when 'Shift_JIS'
