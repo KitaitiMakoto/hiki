@@ -97,7 +97,7 @@ def rss
     return ::Hiki::Response.new([], 304, header)
   else
     header['Last-Modified'] = last_modified.httpdate
-    header['type']          = 'text/xml'
+    header['Content-Type']  = 'text/xml'
     header['charset']       =  @conf.charset
     header['Content-Language'] = @conf.lang
     header['Pragma']           = 'no-cache'
