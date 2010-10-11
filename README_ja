@@ -80,5 +80,5 @@ hiki/docdiff/*
 hiki/image_size.rb
   Keisuke Minami さん作。Ruby ライセンスで配布
 
-Hiki は http://hikiwiki.org/ja/ でサポートを行っています。
-ご意見・ご要望はこちらへどうぞ。
+このブランチは http://kitaitimakoto.vs.land.to/kotan/ で運用もしています。
+意見・ご要望・バグ報告はこちらへどうぞ。
