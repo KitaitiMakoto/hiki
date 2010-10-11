@@ -21,10 +21,12 @@ License version 2.
 Hiki was originally developed by Hitoshi Takeuchi, and is now developed
 by Hiki development team.
 
+Commits on this branch is copyright KITAITI Makoto and under the GNU GPL v2 too.
+
 Hiki includes some files by other authors.
 
 :hiki/db/tmarshal.rb:base of a Rubikitch's script posted on [[ruby-list:30305]]. Its license is Ruby's.
 :hiki/docdiff/*:by Hisashi Morita. Its license is modified BSD.
 :hiki/image_size.rb:by Keisuke Minami. Its license is Ruby's.
 
-We will support you at http://hikiwiki.org/en/.
+I will support you at http://kitaitimakoto.vs.land.to/kotan/.
