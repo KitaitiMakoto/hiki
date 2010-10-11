@@ -15,9 +15,9 @@ def trackback_post
   unless 'POST' == @request.request_method && url
     return redirect(@request, "#{@conf.index_url}?#{h(@page)}")
   end
-  blog_name = utf8_to_euc( params['blog_name'] || '' )
-  title = utf8_to_euc( params['title'] || '' )
-  excerpt = utf8_to_euc( params['excerpt'] || '' )
+  blog_name = ( params['blog_name'] || '' ).to_utf8
+  title = ( params['title'] || '' ).to_utf8
+  excerpt = ( params['excerpt'] || '' ).to_utf8
 
   lines = @db.load( @page )
   md5hex = @db.md5hex( @page )
