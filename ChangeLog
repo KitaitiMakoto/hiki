@@ -1,3 +1,8 @@
+2010-10-24  KITAITI Makoto <KitaitiMakoto@gmail.com>
+
+	* hiki.ru, hiki/config.rb, misc/plugin/attach.rb:
+	  Make attachment work by plugin.
+
 2009-09-05  okkez  <okkez000@gmail.com>
 
 	* hiki/util.rb (Hiki::Util): add module functions (escape,
