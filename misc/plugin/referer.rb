@@ -104,7 +104,7 @@ add_body_leave_proc(Proc.new do
   begin
     Dir.mkdir(referer_path) unless File.exist?(referer_path)
 
-    file_name = "#{referer_path}/#{escape(@page).to_euc}"
+    file_name = "#{referer_path}/#{escape(@page).to_utf8}"
     db = PTStore.new(file_name)
     add_referer(db)
 
