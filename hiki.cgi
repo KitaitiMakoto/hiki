@@ -9,6 +9,5 @@ Rack::Handler::CGI.run(
   Rack::ShowExceptions.new(
   Rack::CommonLogger.new(
   Rack::URLMap.new(
-    '/attach' => Hiki::Attachment.new('hikiconf.rb'),
     '/' => Hiki::App.new('hikiconf.rb')
 ))))
