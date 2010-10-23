@@ -6,9 +6,17 @@
 
 @options['attach.form'] ||= 'edit'
 
+def attach
+  raise PermissionError, 'Permission denied' unless attachable?
+
+  require 'hiki/attachment'
+  attachment = ::Hiki::Attachment.new(@conf.config_path)
+  attachment.call(@request.env.dup)[2]
+end
+
 def attach_form(s = '')
   command = @command == 'create' ? 'edit' : @command
-  attach_cgi = @options['attach.cgi_name'] || 'attach'
+  attach_cgi = "#{@conf.cgi_name}?c=attach"
   <<EOS
 <div class="form">
 <form class="nodisp" method="post" enctype="multipart/form-data" action="#{attach_cgi}">
@@ -212,6 +220,13 @@ def attach_show_page_files_checkbox
   s
 end
 
+def attachable?(page = @page)
+  editable?(page)
+end
+
+add_body_enter_proc {
+  add_plugin_command('attach', nil)
+}
 
 add_body_leave_proc {
   begin
@@ -237,4 +252,4 @@ add_form_proc {
   end
 }
 
-export_plugin_methods(:attach_form, :attach_map, :attach_anchor_string, :attach_anchor, :attach_image_anchor, :attach_flash_anchor, :attach_download, :attach_src, :attach_view)
+export_plugin_methods(:attach, :attach_form, :attach_map, :attach_anchor_string, :attach_anchor, :attach_image_anchor, :attach_flash_anchor, :attach_download, :attach_src, :attach_view, :attachable?)

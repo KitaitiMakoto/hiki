@@ -14,6 +14,3 @@ use Rack::Static, :urls => ['/theme'], :root => '.'
 map '/' do
   run Hiki::App.new('hikiconf.rb')
 end
-map '/attach' do
-  run Hiki::Attachment.new('hikiconf.rb')
-end

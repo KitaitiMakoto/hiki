@@ -23,7 +23,10 @@ module Hiki
 
   class Config
     include ::Hiki::Util
+    attr_reader :config_path
     def initialize(config_path = 'hikiconf.rb')
+      @config_path = config_path
+
       load(config_path)
       load_cgi_conf
 
