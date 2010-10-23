@@ -75,7 +75,6 @@ module Hiki
 
     def detach(request, page, command)
       params = request.params
-      p params
       attach_path = "#{@conf.cache_path}/attach/#{escape(page)}"
       result = ''
       Dir.foreach(attach_path) do |file|
