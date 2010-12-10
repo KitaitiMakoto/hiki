@@ -150,23 +150,9 @@ def attach_view(file_name, page = @page)
 end
 
 def attach_page_files
-<<<<<<< HEAD:misc/plugin/attach.rb
-<<<<<<< HEAD:misc/plugin/attach.rb
   result = []
   attach_path = "#{@cache_path}/attach/#{escape(@page)}".untaint
   if FileTest.directory?(attach_path)
-=======
-  result = Array::new
-=======
-  result = []
->>>>>>> 38587ca... use literal instead of obvious new method.:misc/plugin/attach.rb
-  attach_path = "#{@cache_path}/attach/#{escape(@page)}".untaint
-<<<<<<< HEAD:misc/plugin/attach.rb
-  if FileTest::directory?(attach_path)
->>>>>>> 1463087... use Hiki::Util's utility methods instead of CGI's utility methods:misc/plugin/attach.rb
-=======
-  if FileTest.directory?(attach_path)
->>>>>>> 4dcd6d4... use single dot instead of double colon when calling singleton methods.:misc/plugin/attach.rb
     Dir.entries(attach_path).collect do |file_name|
       result << file_name if FileTest.file?("#{attach_path}/#{file_name}".untaint)
     end
