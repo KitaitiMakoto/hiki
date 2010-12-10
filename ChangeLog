@@ -21,7 +21,7 @@
 
 	* hiki/auth/typekey.rb: use literal instead of obvious new method.
 	* hiki/auth/typekey.rb: ditto.
-	* misc/plugin/attach.rb: ditto.
+v	* misc/plugin/attach.rb: ditto.
 	* misc/plugin/category.rb: ditto.
 	* misc/plugin/google-sitemaps.rb: ditto.
 	* misc/plugin/incremental_search.rb: ditto.
@@ -144,7 +144,7 @@
 	temporary and should be removed when docdiff becomes Ruby-1.9
 	ready.
 
-	* hiki/util.rb (unified_diff): escape output in this method just
+	* hiki/util.rb (ppunified_diff): escape output in this method just
 	same as word_diff() does.
 	* misc/plugin/rss.rb (rss_body): remove escape because
 	unified_diff() will escape instead.
