@@ -41,7 +41,11 @@ def login_url
 end
 
 def typekey_cookie(name, value, max_age = Session::MAX_AGE)
+<<<<<<< HEAD:misc/plugin/auth_typekey.rb
   Hiki::Cookie.new( {
+=======
+  CGI::Cookie.new( {
+>>>>>>> 4dcd6d4... use single dot instead of double colon when calling singleton methods.:misc/plugin/auth_typekey.rb
     'name' => name,
     'value' => value,
     'path' => self.cookie_path,

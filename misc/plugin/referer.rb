@@ -104,13 +104,8 @@ add_body_leave_proc(Proc.new do
   begin
     Dir.mkdir(referer_path) unless File.exist?(referer_path)
 
-<<<<<<< HEAD:misc/plugin/referer.rb
     file_name = "#{referer_path}/#{escape(@page).to_utf8}"
     db = PTStore.new(file_name)
-=======
-    file_name = "#{referer_path}/#{escape(@page).to_euc}"
-    db = PTStore::new(file_name)
->>>>>>> 1463087... use Hiki::Util's utility methods instead of CGI's utility methods:misc/plugin/referer.rb
     add_referer(db)
 
     case @options['referer.display_type']
