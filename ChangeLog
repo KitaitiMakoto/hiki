@@ -36,6 +36,7 @@
 	* style/rd+/rd2html.rb: ditto.
 
 
+<<<<<<< HEAD:ChangeLog
 2009-08-30  okkez  <okkez000@gmail.com>
 
 	* hiki/command.rb: use Hiki::Util#escape, Hiki::Util#unescape,
@@ -99,6 +100,8 @@
 	* style/rd+/html_formatter.rb: ditto.
 	* style/rd+/rd2html.rb: ditto.
 
+=======
+>>>>>>> 38587ca... use literal instead of obvious new method.:ChangeLog
 2009-08-30  okkez  <okkez000@gmail.com>
 
 	* hiki/command.rb: use Hiki::Util#escape, Hiki::Util#unescape,
