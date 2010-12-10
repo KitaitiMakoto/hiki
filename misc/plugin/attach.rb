@@ -136,7 +136,11 @@ def attach_src(file_name, page = @page)
       line = 0
       content.collect! {|i| sprintf("%3d| %s", line+=1, i)}
     end
+<<<<<<< HEAD:misc/plugin/attach.rb
     s << h(content.join).gsub(/^\t+/) {|t| tabstop * t.size}.to_utf8
+=======
+    s << h(content.join).gsub(/^\t+/) {|t| tabstop * t.size}.to_euc
+>>>>>>> 1463087... use Hiki::Util's utility methods instead of CGI's utility methods:misc/plugin/attach.rb
     s << %Q!</pre>!
   end
 end
@@ -150,9 +154,15 @@ def attach_view(file_name, page = @page)
 end
 
 def attach_page_files
+<<<<<<< HEAD:misc/plugin/attach.rb
   result = []
   attach_path = "#{@cache_path}/attach/#{escape(@page)}".untaint
   if FileTest.directory?(attach_path)
+=======
+  result = Array::new
+  attach_path = "#{@cache_path}/attach/#{escape(@page)}".untaint
+  if FileTest::directory?(attach_path)
+>>>>>>> 1463087... use Hiki::Util's utility methods instead of CGI's utility methods:misc/plugin/attach.rb
     Dir.entries(attach_path).collect do |file_name|
       result << file_name if FileTest.file?("#{attach_path}/#{file_name}".untaint)
     end

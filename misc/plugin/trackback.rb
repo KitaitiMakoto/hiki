@@ -5,7 +5,11 @@ def trackback
   script_name = ENV['SCRIPT_FILENAME']
   base_url = script_name.nil? || script_name.empty? ? '' : File.basename(script_name)
   <<-EOF
+<<<<<<< HEAD:misc/plugin/trackback.rb
 <div class="caption">TrackBack URL: <a href="#{base_url}/tb/#{escape(@page)}">#{@conf.base_url}#{base_url}/tb/#{escape(@page)}</a></div>
+=======
+<div class="caption">TrackBack URL: <a href="#{File.basename(ENV['SCRIPT_FILENAME'])}/tb/#{escape(@page)}">#{@conf.base_url}#{File.basename(ENV['SCRIPT_FILENAME'])}/tb/#{escape(@page)}</a></div>
+>>>>>>> 1463087... use Hiki::Util's utility methods instead of CGI's utility methods:misc/plugin/trackback.rb
 EOF
 end
 
