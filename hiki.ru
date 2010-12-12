@@ -1,7 +1,6 @@
 #!/usr/bin/env rackup
 # -*- ruby -*-
 require 'hiki/app'
-require 'hiki/attachment'
 
 use Rack::Lint
 use Rack::ShowExceptions
@@ -11,6 +10,4 @@ use Rack::Reloader
 use Rack::CommonLogger
 use Rack::Static, :urls => ['/theme'], :root => '.'
 
-map '/' do
-  run Hiki::App.new('hikiconf.rb')
-end
+run Hiki::App.new('hikiconf.rb')
