@@ -26,9 +26,6 @@ class Plugin_RSS_Unit_Tests < Test::Unit::TestCase
     end
   end
 
-  def teardown
-  end
-
   def test_rss_returns_304_when_if_modified_since_is_same_to_last_modified
     ENV['HTTP_IF_MODIFIED_SINCE'] = CGI.rfc1123_date(@now)
     assert_equal 304, rss.status
