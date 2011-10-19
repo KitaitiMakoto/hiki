@@ -94,10 +94,6 @@ def rss
     if_modified_since = nil
   end
 
-  p if_modified_since
-  p last_modified
-  p last_modified <=> if_modified_since
-
   if if_modified_since and last_modified <= if_modified_since
     header['status'] = 'NOT_MODIFIED'
     return ::Hiki::Response.new('', 304, header)
