@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 # $Id: test_util.rb,v 1.4 2006-05-29 13:39:10 fdiary Exp $
 
-$KCODE = 'e'
-
 $:.unshift(File.join(File.dirname(__FILE__), '../hiki'))
 
 require 'test/unit'
@@ -17,11 +15,7 @@ class TMarshal_Unit_Tests < Test::Unit::TestCase
     @t3 = "123\n456\ndef\n"
     @t4 = "こんにちは、私の名前はわたなべです。\n私はJust Another Ruby Porterです。"
     @t5 = "こんばんは、私の名前はまつもとです。\nRubyを作ったのは私です。私はRuby Hackerです。"
-    @d1 = Document.new( @t1, 'EUC-JP', 'LF' )
-    @d2 = Document.new( @t2, 'EUC-JP', 'LF' )
-    @d3 = Document.new( @t3, 'EUC-JP', 'LF' )
-    @d4 = Document.new( @t4, 'EUC-JP', 'LF' )
-    @d5 = Document.new( @t5, 'EUC-JP', 'LF' )
+    @conf = Object.new
   end
 
   def test_word_diff_html
@@ -40,12 +34,84 @@ class TMarshal_Unit_Tests < Test::Unit::TestCase
   end
 
   def test_euc_to_utf8
-    assert_equal( "\343\201\273\343\201\222", euc_to_utf8( 'ほげ' ) )
-    assert_equal( "\343\200\234", euc_to_utf8( '〜' ) )
+    omit("do not use this method with Ruby1.9") if Object.const_defined?(:Encoding)
+    hoge_euc = "\xA4\xDB\xA4\xB2"
+    hoge_utf8 = "ほげ"
+    fullwidth_wave_euc = "\xA1\xC1"
+    fullwidth_wave_utf8 = "〜"
+    assert_equal(hoge_utf8, euc_to_utf8(hoge_euc))
+    assert_equal(fullwidth_wave_utf8, euc_to_utf8(fullwidth_wave_euc))
   end
 
   def test_utf8_to_euc
-    assert_equal( 'ほげ', utf8_to_euc( "\343\201\273\343\201\222" ) )
-    assert_equal( '〜', utf8_to_euc( "\343\200\234" ) )
+    omit("do not use this method with Ruby1.9") if Object.const_defined?(:Encoding)
+    hoge_euc = "\xA4\xDB\xA4\xB2"
+    hoge_utf8 = "ほげ"
+    fullwidth_wave_euc = "\xA1\xC1"
+    fullwidth_wave_utf8 = "〜"
+    assert_equal(hoge_euc, utf8_to_euc(hoge_utf8))
+    assert_equal(fullwidth_wave_euc, utf8_to_euc(fullwidth_wave_utf8))
+  end
+
+  def test_plugin_error
+    error = Object.new
+    mock(error).class.returns("Hiki::PluginError")
+    mock(error).message.returns("Plugin Error")
+    mock(@conf).plugin_debug.returns(false)
+    assert_equal("<strong>Hiki::PluginError (Plugin Error): do_something</strong><br>",
+                 plugin_error("do_something", error))
+  end
+
+  def test_plugin_error_with_debug
+    error = Object.new
+    mock(error).class.returns("Hiki::PluginError")
+    mock(error).message.returns("Plugin Error")
+    mock(error).backtrace.returns(["backtrace1", "backtrace2", "backtrace3"])
+    mock(@conf).plugin_debug.returns(true)
+    assert_equal(<<STR.chomp, plugin_error("do_something", error))
+<strong>Hiki::PluginError (Plugin Error): do_something</strong><br><strong>backtrace1<br>
+backtrace2<br>
+backtrace3</strong>
+STR
+  end
+
+  def test_cmdstr
+    assert_equal("?c=hoge;fuga", cmdstr("hoge", "fuga"))
+  end
+
+  def test_title
+    mock(@conf).site_name.returns("<TestSite>")
+    assert_equal("&lt;TestSite&gt; - FrontPage", title("FrontPage"))
+  end
+
+  def test_view_title
+    mock(@conf).cgi_name.returns("hiki.cgi")
+    assert_equal(%Q!<a href="hiki.cgi?c=search;key=FrontPage">FrontPage</a>!, view_title("FrontPage"))
+  end
+
+  def test_format_date
+    mock(@conf).msg_time_format.returns("%Y-%m-%d #DAY# %H:%M:%S")
+    mock(@conf).msg_day.returns(%w(日 月 火 水 木 金 土))
+    assert_equal("2011-01-01 (土) 01:02:03", format_date(Time.new(2011, 1, 1, 1, 2, 3)))
+  end
+
+  def test_escape
+    expected = [
+                "%E3%81%82%E3%81%84%E3%81%86%E3%81%88%E3%81%8A",
+                "%E3%83%95%E3%83%AD%E3%83%B3%E3%83%88%E3%83%9A%E3%83%BC%E3%82%B8",
+                "%A4%A2%A4%A4%A4%A6%A4%A8%A4%AA",
+                "%A5%D5%A5%ED%A5%F3%A5%C8%A5%DA%A1%BC%A5%B8",
+                "%82%A0%82%A2%82%A4%82%A6%82%A8",
+                "%83%74%83%8D%83%93%83%67%83%79%81%5B%83%57",
+               ]
+    actual = [
+              "あいうえお",
+              "フロントページ",
+              NKF.nkf("-m0 -We", "あいうえお"),
+              NKF.nkf("-m0 -We", "フロントページ"),
+              NKF.nkf("-m0 -Ws", "あいうえお"),
+              NKF.nkf("-m0 -Ws", "フロントページ"),
+             ]
+    assert_equal(expected, actual.map{|v| escape(v) })
   end
 end
