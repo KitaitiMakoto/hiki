@@ -1,6 +1,10 @@
 API for HikiDB_RDBMS
 ====================
-Use Sequel?
+Methods around cache needed for diff display
+Use citext type field to search case insensitively
+Limit byte length of pages.title to config.max_name_size
+Move HikiDBBase#load_cache to HikiDB_flatfile
+Move method #exist?(abnel to accept block) or at lest calling for @db.select in Command#exist? from Command to HikiDB_xxx and remove #select from HikiDB_xxx
 
 From HikiDBBase(hiki/storage.rb)
 ---------------

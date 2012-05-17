@@ -85,7 +85,8 @@ module Hiki
     #   escapeHTML('Usage: foo "bar" <baz>')
     #      # => "Usage: foo &quot;bar&quot; &lt;baz&gt;"
     def escapeHTML(string)
-      string.gsub(/&/n, '&amp;').gsub(/\"/n, '&quot;').gsub(/>/n, '&gt;').gsub(/</n, '&lt;')
+      # string.gsub(/&/n, '&amp;').gsub(/\"/n, '&quot;').gsub(/>/n, '&gt;').gsub(/</n, '&lt;')
+      string.gsub(/&/u, '&amp;').gsub(/\"/u, '&quot;').gsub(/>/u, '&gt;').gsub(/</u, '&lt;')
     end
 
     # dead copy from cgi.rb (Ruby1.8)
