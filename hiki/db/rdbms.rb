@@ -49,11 +49,13 @@ module Hiki
         :tokens            => tokens,
         :compatibility_key => Hiki::RELEASE_DATE
       }
-      existing = @db[:parser_cache].filter(:page_name => page)
-      if existing
-        existing.update(data)
-      else
-        @db[:parser_cache].insert(data)
+      @db.transaction do
+        existing = @db[:parser_cache].filter(:page_name => page)
+        if existing
+          existing.update(data)
+        else
+          @db[:parser_cache].insert(data)
+        end
       end
     end
 
@@ -69,8 +71,10 @@ module Hiki
 
       if exist?(page)
         return nil if md5 != md5hex(page)
-        save_backup(page) if update_timestamp
-        @db[:page].filter(:name => page).update(data)
+        @db.transaction do # required because #save_backup accesses database
+          save_backup(page) if update_timestamp
+          @db[:page].filter(:name => page).update(data)
+        end
       else
         data[:name] = data[:title] = page
         @db[:page].insert(data)
@@ -80,8 +84,10 @@ module Hiki
     end
 
     def unlink(page)
-      save_backup(page)
-      @db[:page].filter(:name => page).delete
+      @db.transaction do # required because #save_backup accesses database
+        save_backup(page)
+        @db[:page].filter(:name => page).delete
+      end
     end
 
     def load(page)
@@ -105,9 +111,11 @@ module Hiki
     end
 
     def info(p)
-      page = @db[:page].filter(:name => p).to_hash
-      references = @db[:reference].filter(:to => p).collect {|ref| ref[:from]}
-      keywords = @db[:keyword].filter(:page_name => p).collect {|kw| kw[:keyword]}
+      @db.transaction do
+        page = @db[:page].filter(:name => p).to_hash
+        references = @db[:reference].filter(:to => p).collect {|ref| ref[:from]}
+        keywords = @db[:keyword].filter(:page_name => p).collect {|kw| kw[:keyword]}
+      end
       page[:references] = references # PLURAL key name
       page[:keyword] = keywords # SINGULAR key name
     end
@@ -185,13 +193,15 @@ module Hiki
     end
 
     def set_references(p, r)
-      old_refs = @db[:reference].filter(:from => p).select_map(:to)
-      del_refs = old_refs - r
-      new_refs = r - old_refs
+      @db.transaction do
+        old_refs = @db[:reference].filter(:from => p).select_map(:to)
+        del_refs = old_refs - r
+        new_refs = r - old_refs
 
-      new_data = new_refs.collect {|ref| {:from => p, :to => ref}}
-      @db[:reference].filter(:from => p, :to => del_refs).delete
-      @db[:reference].multi_insert(new_data)
+        new_data = new_refs.collect {|ref| {:from => p, :to => ref}}
+        @db[:reference].filter(:from => p, :to => del_refs).delete
+        @db[:reference].multi_insert(new_data)
+      end
     end
 
     def get_references(p)
@@ -199,17 +209,21 @@ module Hiki
     end
 
     def set_keywords(page, keywords)
-      old_kws = @db[:keyword].filter(:page_name => page).select_map(:keyword)
-      del_kws = old_kws - keywords
-      new_kws = keywords - old_kws
+      @db.transaction do
+        old_kws = @db[:keyword].filter(:page_name => page).select_map(:keyword)
+        del_kws = old_kws - keywords
+        new_kws = keywords - old_kws
 
-      new_data = new_kws.collect {|kw| {:page_name => page, :keyword => kw}}
-      @db[:keyword].filter(:page_name => page, :keyword => del_kws).delete
-      @db[:keyword].multi_insert(new_data)
+        new_data = new_kws.collect {|kw| {:page_name => page, :keyword => kw}}
+        @db[:keyword].filter(:page_name => page, :keyword => del_kws).delete
+        @db[:keyword].multi_insert(new_data)
+      end
     end
 
     private
 
+    # Don't use transaction in this method
+    # Use transaction out of it if needed
     def save_backup(page)
       text = @db[:page].filter(:name => page).select_map(:text)
       bu = @db[:backup].filter(:page_name => page)
