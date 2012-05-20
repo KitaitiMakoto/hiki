@@ -114,8 +114,8 @@ module Hiki
     def page_info
       h = []
       dataset = @db[:page]
-      dataset.join(:reference, :to => :name)
-      dataset.join(:keyword, :page_name => :name)
+      dataset.left_outer_join(:reference, :to => :name)
+      dataset.left_outer_join(:keyword, :page_name => :name)
       dataset.all.each do |record|
         h << { record[:name] => record }
       end
