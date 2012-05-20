@@ -193,7 +193,7 @@ module Hiki
       @generator       ||= "Hiki #{Hiki::VERSION}"
       @timeout         ||= 30
 
-      Dir.mkdir(@cache_path) unless File.directory?(@cache_path)
+      # Dir.mkdir(@cache_path) unless File.directory?(@cache_path)
 
       # following variables are not configurable.
       @config_file = "#{@data_path}/hiki.conf"
