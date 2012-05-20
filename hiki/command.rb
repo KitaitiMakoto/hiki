@@ -7,7 +7,7 @@ require 'hiki/util'
 require 'hiki/plugin'
 require 'hiki/aliaswiki'
 require 'hiki/cookie'
-require 'hiki/session'
+# require 'hiki/session'
 require 'hiki/filter'
 
 module Hiki
@@ -81,16 +81,23 @@ module Hiki
       @plugin = Plugin.new( options, @conf )
       session_id = @cookies['session_id']
       if session_id
-        session = Hiki::Session.new( @conf, session_id )
-        if session.check
-          @plugin.user = session.user
+        # session = Hiki::Session.new( @conf, session_id )
+        # if session.check
+        #   @plugin.user = session.user
+        #   @plugin.session_id = session_id
+        # end
+        session = @request.session
+        if session[:user]
+          @plugin.user  =session[:user]
           @plugin.session_id = session_id
         end
       end
       if @conf.use_session && !@plugin.session_id
-        session = Hiki::Session.new( @conf )
-        session.save
-        @plugin.session_id = session.session_id
+        # session = Hiki::Session.new( @conf )
+        # session.save
+        # @plugin.session_id = session.session_id
+        session = @request.session
+        @plugin.session_id = session[:session_id]
         @plugin.add_cookie( session_cookie( @plugin.session_id ))
       end
       @body_enter = @plugin.body_enter_proc
@@ -498,18 +505,21 @@ module Hiki
       msg_login_result = nil
       status = 'OK'
       if name && password
-        session = Hiki::Session.new( @conf )
+        # session = Hiki::Session.new( @conf )
+        session = @request.session
         @plugin.login( name, password )
 
         if @plugin.user
-          session.user = @plugin.user
-          session.save
+          # session.user = @plugin.user
+          # session.save
+          session[:user] = @plugin.user
           if page && !page.empty?
             url = @conf.base_url + @plugin.hiki_url( page )
           else
             url = @conf.index_url
           end
-          cookies = [session_cookie(session.session_id)]
+          # cookies = [session_cookie(session.session_id)]
+          cookies = [session_cookie(session[:session_id])]
           return redirect(@request, url, cookies)
         else
           msg_login_result = @conf.msg_login_failure
@@ -583,12 +593,14 @@ module Hiki
     def cmd_logout
       if session_id = @cookies['session_id']
         cookies = [session_cookie(session_id, -1)]
-        Hiki::Session.new( @conf, session_id ).delete
+        # Hiki::Session.new( @conf, session_id ).delete
+        @request.session.clear
       end
       redirect(@request, @conf.index_url, cookies)
     end
 
-    def cookie(name, value, max_age = Session::MAX_AGE)
+    # def cookie(name, value, max_age = Session::MAX_AGE)
+    def cookie(name, value, max_age = 60 * 60)
       Hiki::Cookie.new( {
                           'name' => name,
                           'value' => value,
@@ -597,7 +609,8 @@ module Hiki
                         } )
     end
 
-    def session_cookie(session_id, max_age = Session::MAX_AGE)
+    # def session_cookie(session_id, max_age = Session::MAX_AGE)
+    def session_cookie(session_id, max_age = 60 * 60)
       cookie('session_id', session_id, max_age)
     end
 
