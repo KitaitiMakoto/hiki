@@ -4,63 +4,51 @@ require 'rubygems'
 require 'sequel'
 
 module Hiki
-  # Not use file for cache and backup
-  # because couldn't save file on Heroku when free plan
-  # So store tokens(builded HTML and some infos) to cache table
-  # and not use backup at the first release
   class HikiDB_rdbms < HikiDBBase
+    TABLES = [:parser_cache, :backup, :keyword, :reference, :page]
+
     def initialize(conf)
       @conf = conf
-      @db = Sequel.connect(conf.rdbms_setting)
     end
 
     def open_db
-      if block_given?
-        @db.transaction do
+      @db = Sequel.connect(@conf.rdbms_setting)
+      begin
+        if block_given?
           yield
+        else
+          true
         end
-      else
-        true
+      ensure
+        close_db
       end
       true
     end
 
     def close_db
-      true
+      @db.disconnect
     end
 
     def pages
-      @db[:page].select[:title]
+      @db[:page].select[:name]
     end
-
-    def backup(page)
-      @text = load(page) || ''
-    end
-
-    # Inherited from HikiDBBase
-    # def delete(page)
-    # end
-
-    # Inherited from HikiDBBase
-    # def md5hex(page)
-    # end
 
     def search(word)
-      raise 'Not implemented'
+      raise NotImplementedError
     end
 
     def load_cache(page)
-      tmp = @db[:parser_cache].where(:page_title => page, :compatibility_key => Hiki::RELEASE_DATE)
+      tmp = @db[:parser_cache].where(:page_name => page, :compatibility_key => Hiki::RELEASE_DATE)
       tmp.nil? ? nil : tmp.first
     end
 
     def save_cache(page, tokens)
       data = {
-        :page_title        => page,
+        :page_name         => page,
         :tokens            => tokens,
         :compatibility_key => Hiki::RELEASE_DATE
       }
-      existing = @db[:parser_cache].filter(:page_title => page)
+      existing = @db[:parser_cache].filter(:page_name => page)
       if existing
         existing.update(data)
       else
@@ -69,134 +57,169 @@ module Hiki
     end
 
     def delete_cache(page)
-      @db[:parser_cache].filter(:page_title => page).delete
+      @db[:parser_cache].filter(:page_name => page).delete
     end
 
-    # if md5 hash of text is not same to md5 arg,
-    # it shows conflict occuring
     def store(page, text, md5, update_timestamp = true)
-      # backup(page) # not implemented
+      # backup(page) # Why called in HikiDB_flatfile#store ?
 
       data = {:text => text.gsub(/\r\n/, "\n")}
       data[:last_modified] = Time.now if update_timestamp
 
       if exist?(page)
         return nil if md5 != md5hex(page)
-        @db[:page].filter(:title => page).update(data)
+        save_backup(page) if update_timestamp
+        @db[:page].filter(:name => page).update(data)
       else
-        data[:title] = page
+        data[:name] = data[:title] = page
         @db[:page].insert(data)
       end
 
       true
     end
 
-    # noop
-    # exists bacause called in #delete
     def unlink(page)
-      # noop
+      save_backup(page)
+      @db[:page].filter(:name => page).delete
     end
 
     def load(page)
-      data = @db[:page][:title => page]
+      data = @db[:page][:name => page]
       data.nil? ? nil : data[:text]
     end
 
     def load_backup(page)
-      nil
+      if bu = @db[:backup][:page_name => page]
+        bu[:text]
+      end
     end
 
     def exist?(page)
-      @db[:page].filter(:title => page).count > 0
+      ! @db[:page][:name => page].nil?
     end
+    alias info_exist? exist?
 
     def backup_exist?(page)
-      false
-    end
-
-    # maybe alias of #exist?
-    def info_exist?(p)
-      exist?(p)
+      ! @db[:backup][:page_name => page].nil?
     end
 
     def info(p)
-      page = @db[:page].filter(:title => p).to_hash
+      page = @db[:page].filter(:name => p).to_hash
       references = @db[:reference].filter(:to => p).collect {|ref| ref[:from]}
-      keywords = @db[:keyword].filter(:page_title => p).collect {|kw| kw[:keyword]}
+      keywords = @db[:keyword].filter(:page_name => p).collect {|kw| kw[:keyword]}
       page[:references] = references # PLURAL key name
       page[:keyword] = keywords # SINGULAR key name
     end
 
     def page_info
+      h = []
+      dataset = @db[:page]
+      dataset.join(:reference, :to => :name)
+      dataset.join(:keyword, :page_name => :name)
+      dataset.all.each do |record|
+        h << { record[:name] => record }
+      end
+      h
     end
 
-    # attr is an Array or Hash, so use `each do |attribute, value|`
-    # @param String p page title
-    # @param Array|Hash attribute pairs like:
-    #   [[:title, 'page title'], [:keyword, ['some', 'keyword', 'array']]] or
-    #   {:title => 'page title', :keyword => ['some', 'keyword', 'array']}
     def set_attribute(p, attr)
-      page_attr = attr.delete_if do |attribute, value|
+      page_attr = attr.inject({}) { |filtered, (attribute, value)|
         case attribute
         when :keyword
           set_keywords(p, value)
-          true
+          filtered
         when :references
           set_references(p, value)
-          true
+          filtered
         else
-          false
+          filtered[attribute] = value
+          filtered
         end
-      end
-      @db[:page].filter(:title => p).update(page_attr)
+      }
+      @db[:page].filter(:name => p).update(page_attr)
     end
 
     def get_attribute(p, attribute)
       case attribute
       when :keyword
-        @db[:keyword].filter(:page_title => p).select(:keyword).all
+        @db[:keyword].filter(:page_name => p).select_map(:keyword)
       when :references
         @db[:reference].filter(:to => p).select(:from).all
       else
-        @db[:page].filter(:title => p).select(attribute).first[attribute]
+        record = @db[:page].filter(:name => p).select(attribute).first
+        record[attribute] unless record.nil?
       end
     end
 
-    # `JOIN` not used because currently called with block which handles only :title attribute
+    # `JOIN` not used because, on current implementation, called with block which handles only :name attribute
     def select
       result = []
-      @db[:page].each {|info| result << info[:title] if yield info}
+      @db[:page].each {|info| result << info[:name] if yield info}
       result
     end
 
     def increment_hitcount(p)
+      raise NotImplementedError
     end
 
     def get_hitcount(p)
+      raise NotImplementedError
     end
 
     def freeze_page(p, freeze)
+      set_attribute(p, [[:freeze, freeze]])
     end
 
     def is_frozen?(p)
+      get_attribute(p, :freeze)
     end
 
     def set_last_update(p, t)
+      set_attribute(p, [[:last_modified, t]])
     end
 
     def get_last_update(p)
+      page = @db[:page][:name => p]
+      page && page[:last_modified]
     end
 
     def set_references(p, r)
+      old_refs = @db[:reference].filter(:from => p).select_map(:to)
+      del_refs = old_refs - r
+      new_refs = r - old_refs
+
+      new_data = new_refs.collect {|ref| {:from => p, :to => ref}}
+      @db[:reference].filter(:from => p, :to => del_refs).delete
+      @db[:reference].multi_insert(new_data)
     end
 
     def get_references(p)
-      @db[:reference][:from => p].to_a
+      @db[:reference].filter(:to => p).select_map(:from)
     end
 
-    # Note: Implented in only this class, not in HikiDB_flatfile
     def set_keywords(page, keywords)
-      # use transaction
+      old_kws = @db[:keyword].filter(:page_name => page).select_map(:keyword)
+      del_kws = old_kws - keywords
+      new_kws = keywords - old_kws
+
+      new_data = new_kws.collect {|kw| {:page_name => page, :keyword => kw}}
+      @db[:keyword].filter(:page_name => page, :keyword => del_kws).delete
+      @db[:keyword].multi_insert(new_data)
+    end
+
+    private
+
+    def save_backup(page)
+      text = @db[:page].filter(:name => page).select_map(:text)
+      bu = @db[:backup].filter(:page_name => page)
+
+$stderr.puts bu.class
+
+      if bu.empty?
+        @db[:backup].insert(:page_name => page, :text => text)
+      else
+        bu.update(:text => text)
+      end
     end
 
     class << self
@@ -206,7 +229,8 @@ module Hiki
         max_name_size = conf.max_name_size
 
         db.create_table :page do
-          String    :title, :size => max_name_size, :primary_key => true
+          String    :name, :size => max_name_size,  :primary_key => true
+          String    :title, :size => max_name_size, :null => false, :unique => true
           String    :editor,        :null => true,  :default => nil
           Fixnum    :count,         :null => false, :default => 0
           DateTime  :last_modified, :null => false, :default => Sequel::CURRENT_TIMESTAMP
@@ -215,36 +239,49 @@ module Hiki
         end
 
         db.create_table :reference do
-          String :from, :key => :title, :table => :page, :null => false, :size => max_name_size
-          String :to,   :key => :title, :table => :page, :null => false, :size => max_name_size, :index => true
+          String :from, :key => :name, :table => :page, :null => false, :size => max_name_size
+          String :to,   :key => :name, :table => :page, :null => false, :size => max_name_size, :index => true
 
           primary_key [:from, :to]
         end
 
         db.create_table :keyword do
-          String :page_title, :size => max_name_size, :null => false, :key => :title, :table => :page, :index => true
-          String :keyword,                            :null => false, :key => :title, :table => :page, :index => true
+          String :page_name, :size => max_name_size, :null => false, :key => :name, :table => :page, :index => true
+          String :keyword,                           :null => false, :index => true
 
-          primary_key [:page_title, :keyword]
+          primary_key [:page_name, :keyword]
+        end
+
+        db.create_table :backup do
+          String :page_name, :size => max_name_size, :primary_key => true
+          String :text, :text => true, :null => false
         end
 
         db.create_table :parser_cache do
-          String :page_title, :size => max_name_size, :null => false, :key => :title, :table => :page, :primary_key => true
+          String :page_name, :size => max_name_size, :null => false, :key => :name, :table => :page, :primary_key => true
           String :tokens, :text => true,              :null => false
           String :compatibility_key,                  :null => false
         end
 
-        # To do: stored procedures
+        # TODO: stored procedures
       end
 
       def drop_tables
-        [:keyword, :reference, :page, :parser_cache].each {|table| db.drop_table table}
+        TABLES.each do |table|
+          db.drop_table table if db.table_exists?(table)
+        end
       end
 
-      # stub :
       def insert_initial_data
-        data_dir = 'data/text' # not always same to HikiDB_flatfile#pages_path
-        files = Dir["#{data_dir}/*"]
+        require 'pathname'
+
+        # not always same to HikiDB_flatfile#pages_path
+        files = Pathname.glob('data/text/*')
+        data = files.collect {|file|
+          name = file.basename.to_s
+          {:name => name, :title => name, :text => file.read}
+        }
+        db[:page].multi_insert data
       end
 
       private
