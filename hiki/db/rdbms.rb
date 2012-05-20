@@ -30,11 +30,12 @@ module Hiki
     end
 
     def pages
-      @db[:page].select[:name]
+      @db[:page].select(:name).all
     end
 
-    def search(word)
-      raise NotImplementedError
+    # TODO: To implement appropriate algorithm for RDBMS
+    def search(w)
+      super
     end
 
     def load_cache(page)
