@@ -48,3 +48,9 @@ info DB
 * #get_last_update( p )
 * #set_references(p ,r)
 * #get_references(p)
+
+TODO
+----
+* HikiDB_rdbms#search
+* Remove Hiki::Cookie, considering Plugin#session_id
+* Configuration, Currently editing hikiconf.rb by hand is needed
