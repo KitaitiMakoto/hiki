@@ -212,9 +212,6 @@ module Hiki
     def save_backup(page)
       text = @db[:page].filter(:name => page).select_map(:text)
       bu = @db[:backup].filter(:page_name => page)
-
-$stderr.puts bu.class
-
       if bu.empty?
         @db[:backup].insert(:page_name => page, :text => text)
       else
