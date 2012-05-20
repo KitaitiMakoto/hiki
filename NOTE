@@ -1,5 +1,6 @@
 API for HikiDB_RDBMS
 ====================
+
 Methods around cache needed for diff display
 Use citext type field to search case insensitively
 Limit byte length of pages.title to config.max_name_size
@@ -8,6 +9,7 @@ Move method #exist?(abnel to accept block) or at lest calling for @db.select in 
 
 From HikiDBBase(hiki/storage.rb)
 ---------------
+
 * #open_db - block acceptable
 * #close_db
 * #pages
@@ -23,6 +25,7 @@ load is called from some method
 
 From HikiDB_flatfile(hiki/db/flatfile.rb)
 --------------------
+
 * attr_reader :pages_path
 * #initialize( conf )
 * #store( page, text, md5, update_timestamp = true )
@@ -32,7 +35,7 @@ From HikiDB_flatfile(hiki/db/flatfile.rb)
 * #exist?( page )
 * #backup_exist?( page )
 
-info DB
+### info DB
 * #info_exist?( p )
 * #infodb_exist?
 * #info( p )
@@ -51,6 +54,7 @@ info DB
 
 TODO
 ----
+
 * HikiDB_rdbms#search
 * Remove Hiki::Cookie, considering Plugin#session_id
 * Configuration, Currently editing hikiconf.rb by hand is needed
