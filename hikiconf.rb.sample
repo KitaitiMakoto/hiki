@@ -32,14 +32,15 @@
 #  RDBMSの設定
 #============================
 @database_type = 'rdbms'
-@rdbms_setting = {
-  :adapter  => 'postgres',
-  :host     => 'localhost',
-  :port     => 5432,
-  :database => 'hiki',
-  :user     => 'hiki',
-  :password => 'hiki'
-}
+@rdbms_setting = ENV['DATABASE_URL']
+# @rdbms_setting = {
+#   :adapter  => 'postgres',
+#   :host     => 'localhost',
+#   :port     => 5432,
+#   :database => 'hiki',
+#   :user     => 'hiki',
+#   :password => 'hiki'
+# }
 
 #====================================================================
 #  管理画面から変更できる項目
