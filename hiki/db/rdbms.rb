@@ -4,7 +4,7 @@ require 'sequel'
 
 module Hiki
   class HikiDB_rdbms < HikiDBBase
-    TABLES = [:parser_cache, :backup, :keyword, :reference, :page]
+    TABLES = [:parser_cache, :backup, :keyword, :reference, :page, :metadata]
 
     def initialize(conf)
       @conf = conf
@@ -286,6 +286,11 @@ module Hiki
           String :compatibility_key,                  :null => false
         end
 
+        db.create_table :metadata do
+          String :key,   :primary_key => true
+          String :value, :text => true
+        end
+
         # TODO: stored procedures
       end
 
@@ -296,6 +301,8 @@ module Hiki
       end
 
       def insert_initial_data
+        db[:metadata].insert(:key => 'config', :value => '')
+
         require 'pathname'
 
         # not always same to HikiDB_flatfile#pages_path
