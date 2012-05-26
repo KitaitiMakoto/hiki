@@ -121,14 +121,22 @@ module Hiki
     end
 
     def page_info
-      h = []
       dataset = @db[:page]
-      dataset.left_outer_join(:reference, :to => :name)
-      dataset.left_outer_join(:keyword, :page_name => :name)
-      dataset.all.each do |record|
-        h << { record[:name] => record }
-      end
-      h
+      dataset = dataset.left_outer_join(:reference, :to => :name)
+      dataset = dataset.left_outer_join(:keyword, :page_name => :page__name)
+      data = dataset.reduce({}) { |buf, record|
+        name = record[:name]
+        if buf[name]
+          buf[name][:reference] << record[:reference]
+          buf[name][:keyword] << record[:keyword]
+        else
+          buf[name] = record
+          buf[name][:reference] = [record[:reference]]
+          buf[name][:keyword] = [record[:keyword]]
+        end
+        buf
+      }
+      data.collect { |name, record| {name => record} }
     end
 
     def set_attribute(p, attr)
