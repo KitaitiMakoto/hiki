@@ -27,4 +27,3 @@ namespace :db do
     Hiki::HikiDB_rdbms.insert_initial_data
   end
 end
-
