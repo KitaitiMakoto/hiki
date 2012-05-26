@@ -366,6 +366,7 @@ module Hiki
     def cmd_diff
       old = @db.load_backup( @p ) || ''
       new = @db.load( @p ) || ''
+      [old, new].each {|txt| txt.force_encoding(@conf.charset) if txt.respond_to? :force_encoding}
       begin
         differ = word_diff( old, new ).gsub( /\n/, "<br>\n" )
       rescue
