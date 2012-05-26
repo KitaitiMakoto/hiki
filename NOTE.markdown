@@ -58,4 +58,9 @@ TODO
 
 * `HikiDB_rdbms#search`
 * `Remove Hiki::Cookie`, considering `Plugin#session_id`
+  * Think about session secret
 * Configuration, currently editing hikiconf.rb by hand is needed
+  * save_config
+  * load_cgi_conf
+* Hikifarm
+* XML-RPC
