@@ -46,7 +46,7 @@ From HikiDB_flatfile(hiki/db/flatfile.rb)
 * `#select` - acceptable block and pass arg `|page_info|`
 * `#increment_hitcount( p )`
 * `#get_hitcount( p )`
-* `#freeze_page( p, freeze )` - freeze is true or false
+* `#freeze_page( p, freeze )` - `freeze` is true or false
 * `#is_frozen?( p )`
 * `#set_last_update( p, t )`
 * `#get_last_update( p )`
