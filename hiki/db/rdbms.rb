@@ -159,9 +159,9 @@ module Hiki
     def get_attribute(p, attribute)
       case attribute
       when :keyword
-        @db[:keyword].filter(:page_name => p).select_map(:keyword)
+        get_keywords(p)
       when :references
-        @db[:reference].filter(:to => p).select(:from).all
+        get_references(p)
       else
         record = @db[:page].filter(:name => p).select(attribute).first
         record[attribute] unless record.nil?
@@ -226,6 +226,10 @@ module Hiki
         @db[:keyword].filter(:page_name => page, :keyword => del_kws).delete
         @db[:keyword].multi_insert(new_data)
       end
+    end
+
+    def get_keywords(page)
+      @db[:keyword].filter(:page_name => page).select_map(:keyword)
     end
 
     private
