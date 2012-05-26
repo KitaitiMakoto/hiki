@@ -259,14 +259,14 @@ module Hiki
         end
 
         db.create_table :reference do
-          String :from, :key => :name, :table => :page, :null => false, :size => max_name_size
-          String :to,   :key => :name, :table => :page, :null => false, :size => max_name_size, :index => true
+          String :from, :key => :name, :table => :page, :on_delete => :cascade, :null => false, :size => max_name_size
+          String :to,   :key => :name, :table => :page, :on_delete => :cascade, :null => false, :size => max_name_size, :index => true
 
           primary_key [:from, :to]
         end
 
         db.create_table :keyword do
-          String :page_name, :size => max_name_size, :null => false, :key => :name, :table => :page, :index => true
+          String :page_name, :size => max_name_size, :null => false, :key => :name, :table => :page, :on_delete => :cascade, :index => true
           String :keyword,                           :null => false, :index => true
 
           primary_key [:page_name, :keyword]
@@ -278,7 +278,7 @@ module Hiki
         end
 
         db.create_table :parser_cache do
-          String :page_name, :size => max_name_size, :null => false, :key => :name, :table => :page, :primary_key => true
+          String :page_name, :size => max_name_size, :null => false, :key => :name, :table => :page, :on_delete => :cascade, :primary_key => true
           String :tokens, :text => true,              :null => false
           String :compatibility_key,                  :null => false
         end
