@@ -1,4 +1,3 @@
-require 'hiki/config'
 require 'hiki/storage'
 require 'rubygems'
 require 'sequel'
