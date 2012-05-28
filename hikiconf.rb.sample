@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # $Id: hikiconf.rb.sample,v 1.20 2006-07-31 13:43:20 fdiary Exp $
 # Copyright (C) 2002-2003 TAKEUCHI Hitoshi <hitoshi@namaraii.com>
 
@@ -26,6 +27,18 @@
 #   ジ編集や掲示板プラグインなどによる投稿をする必要がある場合は false を
 #   指定します。
 @use_session    = true
+
+#============================
+#  RDBMSの設定
+#============================
+@database_type = 'rdbms'
+@rdbms_setting = {
+  :adapter  => 'mysql',
+  :host     => 'hostname',
+  :database => 'database',
+  :user     => 'username',
+  :password => 'passowrd'
+}
 
 #====================================================================
 #  管理画面から変更できる項目

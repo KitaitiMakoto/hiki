@@ -4,8 +4,8 @@
 # TADA Tadashi <sho@spc.gr.jp> holds the copyright of Config class.
 
 module Hiki
-  VERSION = '0.9dev'
-  RELEASE_DATE = '2009-08-24'
+  VERSION = 'Sqale'
+  RELEASE_DATE = '2012-05-28'
 end
 
 # For backward compatibility
@@ -25,6 +25,12 @@ module Hiki
     include ::Hiki::Util
     def initialize(config_path = 'hikiconf.rb')
       load(config_path)
+      case @database_type
+      when 'rdbms'
+        require 'hiki/config/rdbms'
+      else
+        require 'hiki/config/flatfile'
+      end
       load_cgi_conf
 
       load_messages
@@ -75,13 +81,6 @@ module Hiki
     def delete( key )
       @options.delete( key )
       @options2.delete( key )
-    end
-
-    def save_config
-      conf = ERB.new( File.open( "#{@template_path}/hiki.conf" ){|f| f.read }.untaint ).result( binding )
-      File.open(@config_file, "w") do |f|
-        f.print conf
-      end
     end
 
     def base_url
@@ -193,7 +192,7 @@ module Hiki
       @generator       ||= "Hiki #{Hiki::VERSION}"
       @timeout         ||= 30
 
-      Dir.mkdir(@cache_path) unless File.directory?(@cache_path)
+      # Dir.mkdir(@cache_path) unless File.directory?(@cache_path)
 
       # following variables are not configurable.
       @config_file = "#{@data_path}/hiki.conf"
@@ -208,7 +207,6 @@ module Hiki
                    :mail_on_update, :use_sidebar, :auto_link, :use_wikiname,
                    :xmlrpc_enabled, :options2]
       begin
-        cgi_conf = File.open( @config_file ){|f| f.read }.untaint
         cgi_conf.gsub!( /^[@$]/, '' )
         def_vars1 = ''
         def_vars2 = ''
