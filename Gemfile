@@ -1,6 +1,8 @@
 source "http://rubygems.org"
 
 gem "rack"
+gem 'pg'
+gem 'sequel'
 
 group :development do
   gem "test-unit"
