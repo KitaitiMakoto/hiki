@@ -1,4 +1,4 @@
-FROM ruby:latest
+FROM ruby:2.7.1
 
 ENV LANG=C.UTF-8
 WORKDIR /usr/src/hiki
